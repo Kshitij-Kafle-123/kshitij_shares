@@ -151,3 +151,78 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({top: 0, behavior: 'smooth'});
   });
 });
+
+// --- Markers panel (right-side) with cookie storage ---
+function loadMarkersFromCookie(){
+  const name = 'agentic_markers=';
+  const c = document.cookie.split('; ').find(x=>x.startsWith(name));
+  if(!c) return [];
+  try{ return JSON.parse(decodeURIComponent(c.split('=')[1])); }catch(e){ return []; }
+}
+
+function saveMarkersToCookie(arr){
+  const v = encodeURIComponent(JSON.stringify(arr));
+  // set cookie for 365 days
+  document.cookie = `agentic_markers=${v};path=/;max-age=${60*60*24*365}`;
+}
+
+function initMarkers(){
+  if(document.getElementById('marker-panel')) return;
+  const panel = document.createElement('div');
+  panel.id = 'marker-panel';
+  panel.innerHTML = `
+    <h4>Notepad</h4>
+    <div class="mp-controls">
+      <textarea id="marker-notepad" placeholder="Notes are saved automatically..." rows="10"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="small" id="marker-add-selection">Add selection</button>
+      <button class="small" id="marker-clear">Clear</button>
+    </div>
+  `;
+  document.body.appendChild(panel);
+
+  const ta = panel.querySelector('#marker-notepad');
+  const addSel = panel.querySelector('#marker-add-selection');
+  const clearBtn = panel.querySelector('#marker-clear');
+
+  function loadNotepad(){
+    try{return localStorage.getItem('agentic_notepad') || ''}catch(e){return ''}
+  }
+  function saveNotepad(v){
+    try{ localStorage.setItem('agentic_notepad', v); }catch(e){}
+  }
+
+  // populate
+  ta.value = loadNotepad();
+
+  // debounce autosave
+  let saveTimer = null;
+  ta.addEventListener('input', ()=>{
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=>{ saveNotepad(ta.value); saveTimer = null; }, 500);
+  });
+
+  addSel.addEventListener('click', ()=>{
+    const sel = (window.getSelection && window.getSelection().toString()) || '';
+    if(!sel) return alert('No selection found. Select text and try again.');
+    // insert at cursor or append
+    const start = ta.selectionStart || ta.value.length;
+    const end = ta.selectionEnd || start;
+    const before = ta.value.slice(0,start);
+    const after = ta.value.slice(end);
+    ta.value = before + sel.trim() + '\n' + after;
+    // set caret after inserted text
+    const pos = before.length + sel.trim().length + 1;
+    ta.focus(); ta.setSelectionRange(pos,pos);
+    saveNotepad(ta.value);
+  });
+
+  clearBtn.addEventListener('click', ()=>{
+    if(!confirm('Clear all notes in the notepad?')) return;
+    ta.value = '';
+    saveNotepad('');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initMarkers);

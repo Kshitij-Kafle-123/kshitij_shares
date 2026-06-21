@@ -1,3 +1,4 @@
-# Chapter 5
+# Chapter 5 — Coming Soon
 
-Write your Chapter 5 content here.
+This chapter is coming soon.
+
