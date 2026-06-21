@@ -4,7 +4,9 @@ const chapters = [
   { title: 'Chapter 2', file: 'chapters/chapter-2.md' },
   { title: 'Chapter 3', file: 'chapters/chapter-3.md' },
   { title: 'Chapter 4', file: 'chapters/chapter-4.md' },
-  { title: 'Chapter 5', file: 'chapters/chapter-5.md' }
+  { title: 'Chapter 5', file: 'chapters/chapter-5.md' },
+  { title: 'Chapter 6', file: 'chapters/chapter-6.md' },
+  { title: 'Chapter 7', file: 'chapters/chapter-7.md' },
 ];
 
 const nav = document.getElementById('chapters-nav');
