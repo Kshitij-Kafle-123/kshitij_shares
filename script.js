@@ -176,8 +176,9 @@ function initMarkers(){
       <textarea id="marker-notepad" placeholder="Notes are saved automatically..." rows="10"></textarea>
     </div>
     <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="small" id="marker-add-selection">Add selection</button>
-      <button class="small" id="marker-clear">Clear</button>
+      <button class="small btn-green" id="marker-add-selection">Add selection</button>
+      <button class="small btn-search" id="marker-search">Search web</button>
+      <button class="small btn-red" id="marker-clear">Clear</button>
     </div>
   `;
   document.body.appendChild(panel);
@@ -218,8 +219,20 @@ function initMarkers(){
     saveNotepad(ta.value);
   });
 
+  // Search web button: use selection if available, else textarea selection, else full textarea
+  const searchBtn = panel.querySelector('#marker-search');
+  searchBtn.addEventListener('click', ()=>{
+    const sel = (window.getSelection && window.getSelection().toString()) || '';
+    const taSel = (ta.selectionStart !== ta.selectionEnd) ? ta.value.substring(ta.selectionStart, ta.selectionEnd) : '';
+    const query = (sel && sel.trim()) || (taSel && taSel.trim()) || ta.value.trim();
+    if(!query) return alert('Nothing to search. Select text or type in the notepad.');
+    const url = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+    window.open(url, '_blank');
+  });
+
   clearBtn.addEventListener('click', ()=>{
-    if(!confirm('Clear all notes in the notepad?')) return;
+    const msg = 'Your notepad content will be cleared permanently. Proceed?';
+    if(!confirm(msg)) return;
     ta.value = '';
     saveNotepad('');
   });
